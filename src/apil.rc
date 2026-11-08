@@ -1,0 +1,8 @@
+101 RCDATA "bin/DistrictTelemetry.exe"
+102 RCDATA "third_party/libwebp/DistrictWebP.dll"
+103 RCDATA "assets/map/navigator-atlas.bmp"
+104 RCDATA "assets/vehicles/01_passenger_car.obj"
+105 RCDATA "assets/vehicles/02_rigid_truck.obj"
+106 RCDATA "assets/vehicles/03_semi_truck_trailer.obj"
+107 RCDATA "assets/vehicles/04_bus.obj"
+108 RCDATA "assets/vehicles/vehicle_materials.mtl"

@@ -1,0 +1,57 @@
+# Neutral grayscale materials for stylized low-poly vehicles
+
+newmtl body_gray
+Ka 0.12 0.12 0.12
+Kd 0.7300 0.7500 0.7700
+Ks 0.045 0.045 0.045
+Ns 14
+d 1.0
+illum 2
+
+newmtl roof_gray
+Ka 0.12 0.12 0.12
+Kd 0.8000 0.8100 0.8200
+Ks 0.045 0.045 0.045
+Ns 14
+d 1.0
+illum 2
+
+newmtl cargo_gray
+Ka 0.12 0.12 0.12
+Kd 0.7200 0.7400 0.7600
+Ks 0.045 0.045 0.045
+Ns 14
+d 1.0
+illum 2
+
+newmtl metal_gray
+Ka 0.12 0.12 0.12
+Kd 0.4800 0.5100 0.5300
+Ks 0.045 0.045 0.045
+Ns 14
+d 1.0
+illum 2
+
+newmtl wheel_gray
+Ka 0.12 0.12 0.12
+Kd 0.2300 0.2500 0.2700
+Ks 0.045 0.045 0.045
+Ns 14
+d 1.0
+illum 2
+
+newmtl hub_gray
+Ka 0.12 0.12 0.12
+Kd 0.5500 0.5800 0.6000
+Ks 0.045 0.045 0.045
+Ns 14
+d 1.0
+illum 2
+
+newmtl glass_gray
+Ka 0.12 0.12 0.12
+Kd 0.5900 0.6300 0.6600
+Ks 0.045 0.045 0.045
+Ns 14
+d 1.0
+illum 2
