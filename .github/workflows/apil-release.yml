@@ -1,0 +1,125 @@
+name: Build and publish APIL
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - source/APIL-source.zip
+      - source/archive.part-*.b64
+      - .github/workflows/apil-release.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: apil-release-main
+  cancel-in-progress: false
+
+jobs:
+  windows-release:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - name: Check out publishing repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Install MinGW-w64 toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends g++-mingw-w64-x86-64-posix binutils-mingw-w64-x86-64 python3
+      - name: Restore initial source ZIP (migration only)
+        run: |
+          set -euo pipefail
+          if [[ ! -f source/APIL-source.zip ]]; then
+            cat source/archive.part-*.b64 | base64 --decode > source/APIL-source.zip
+            echo '4b5cbd5de1dff925a94c42f37c35e853811f56b7ea5c23401de192473fcd7f21  source/APIL-source.zip' | sha256sum --check
+          fi
+      - name: Extract source ZIP safely
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path, PurePosixPath
+          from zipfile import ZipFile
+          archive=Path('source/APIL-source.zip')
+          dest=Path('apil-build').resolve()
+          dest.mkdir()
+          with ZipFile(archive) as z:
+              items=z.infolist()
+              assert 1 <= len(items) <= 500, 'Unexpected number of ZIP entries'
+              assert sum(i.file_size for i in items) <= 80*1024*1024, 'ZIP too large'
+              for info in items:
+                  name=PurePosixPath(info.filename)
+                  assert not name.is_absolute() and '..' not in name.parts and '\\' not in info.filename, 'Unsafe ZIP path'
+                  assert (info.external_attr>>16)&0o170000 != 0o120000, 'Symlink not allowed'
+                  target=dest.joinpath(*name.parts)
+                  if info.is_dir():
+                      target.mkdir(parents=True,exist_ok=True)
+                      continue
+                  target.parent.mkdir(parents=True,exist_ok=True)
+                  with z.open(info) as src, target.open('wb') as dst:
+                      import shutil
+                      shutil.copyfileobj(src,dst)
+          for name in ('build-mingw.sh','src/controller.cpp','src/apil_release.hpp','src/webview_runtime.hpp','ui/index.html','native/MicrosoftEdgeWebview2Setup.exe'):
+              assert (dest/name).is_file(), f'Missing {name}'
+          PY
+      - name: Build Windows x64 application
+        working-directory: apil-build
+        run: |
+          bash build-mingw.sh
+          test -s dist/APIL.exe
+          test -s dist/update.txt
+          python3 - <<'PY'
+          import hashlib,re
+          from pathlib import Path
+          exe=Path('dist/APIL.exe').read_bytes()
+          text=Path('dist/update.txt').read_text().split()
+          assert len(text)==3
+          version,size,hashsum=text
+          assert re.fullmatch(r'\d+\.\d+\.\d+',version)
+          assert int(size)==len(exe)
+          assert hashsum==hashlib.sha256(exe).hexdigest()
+          assert exe[:2]==b'MZ'
+          print('Built APIL',version,len(exe),'SHA256',hashsum)
+          PY
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: APIL-windows-x64
+          path: |
+            apil-build/dist/APIL.exe
+            apil-build/dist/update.txt
+          if-no-files-found: error
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          read -r VERSION SIZE SHA < apil-build/dist/update.txt
+          TAG="v${VERSION}"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" apil-build/dist/APIL.exe apil-build/dist/update.txt --clobber
+          else
+            gh release create "$TAG" apil-build/dist/APIL.exe apil-build/dist/update.txt \
+              --title "APIL ${VERSION}" --notes "Windows x64 build from source/APIL-source.zip, SHA-256: ${SHA}" \
+              --target "$GITHUB_SHA" --latest
+          fi
+      - name: Update old-client compatibility feed
+        shell: bash
+        run: |
+          set -euo pipefail
+          read -r VERSION SIZE SHA < apil-build/dist/update.txt
+          mkdir -p dist
+          cp apil-build/dist/APIL.exe dist/APIL.exe
+          cp apil-build/dist/update.txt dist/update.txt
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -f dist/APIL.exe dist/update.txt source/APIL-source.zip
+          for part in source/archive.part-*.b64; do
+            if [[ -f "$part" ]]; then git rm -- "$part"; fi
+          done
+          if ! git diff --cached --quiet; then
+            git commit -m "ci: publish APIL ${VERSION} [skip ci]"
+            git push origin HEAD:main
+          fi
