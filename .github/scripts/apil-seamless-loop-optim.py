@@ -34,7 +34,7 @@ else:
 }''',path)
     s=replace(s,
         '    result.seam=result.points.size()-1;',
-        '    result.seam=result.points.size()-1;\\n    result.points[result.seam].waitMs=0;\\n    result.points[result.seam].enterCount=0;',path)
+        '    result.seam=result.points.size()-1;\n    result.points[result.seam].waitMs=0;\n    result.points[result.seam].enterCount=0;',path)
     files[path]=s.encode()
     path="src/controller.cpp"
     s=files[path].decode("utf-8-sig")
