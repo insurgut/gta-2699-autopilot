@@ -15,6 +15,7 @@ def change(source, old, new, name):
 def patch(files):
     files["src/seamless_loop.hpp"]=r'''#pragma once
 #include "route.hpp"
+#include "endpoint_settings.hpp"
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
