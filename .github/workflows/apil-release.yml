@@ -5,7 +5,7 @@ on:
     branches: [main]
     paths:
       - source/APIL-source.zip
-      - .github/scripts/apil-endpoint-fix.py
+      - .github/scripts/apil-seamless-loop.py
       - source/archive.part-*.b64
       - .github/workflows/apil-release.yml
   workflow_dispatch:
@@ -37,9 +37,9 @@ jobs:
             cat source/archive.part-*.b64 | base64 --decode > source/APIL-source.zip
             echo '4b5cbd5de1dff925a94c42f37c35e853811f56b7ea5c23401de192473fcd7f21  source/APIL-source.zip' | sha256sum --check
           fi
-      - name: Apply APIL endpoint settings migration
+      - name: Apply APIL seamless lap update
         run: |
-          python3 .github/scripts/apil-endpoint-fix.py
+          python3 .github/scripts/apil-seamless-loop.py
       - name: Extract source ZIP safely
         run: |
           python3 - <<'PY'
@@ -67,6 +67,11 @@ jobs:
           for name in ('build-mingw.sh','src/controller.cpp','src/apil_release.hpp','src/webview_runtime.hpp','ui/index.html','native/MicrosoftEdgeWebview2Setup.exe'):
               assert (dest/name).is_file(), f'Missing {name}'
           PY
+      - name: Test seamless lap transitions (native unit tests)
+        working-directory: apil-build
+        run: |
+          g++ -std=c++17 -O2 -Wall -Wextra -I src src/seamless_loop_tests.cpp -o /tmp/apil-loop-tests
+          /tmp/apil-loop-tests
       - name: Build Windows x64 application
         working-directory: apil-build
         run: |
