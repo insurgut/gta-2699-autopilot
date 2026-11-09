@@ -32,6 +32,9 @@ else:
     if(distance(car,points[seam+1])>24.0f)return false;
     return segment>=seam+2 || distance(car,points[seam+1])<=5.0f;
 }''',path)
+    s=replace(s,
+        '    result.seam=result.points.size()-1;',
+        '    result.seam=result.points.size()-1;\\n    result.points[result.seam].waitMs=0;\\n    result.points[result.seam].enterCount=0;',path)
     files[path]=s.encode()
     path="src/controller.cpp"
     s=files[path].decode("utf-8-sig")
@@ -50,8 +53,11 @@ else:
     files[path]=s.encode()
     for path in ("src/apil_release.hpp","ui/app.js","ui/index.html"):
         s=files[path].decode()
-        s=replace(s,"0.2.07","0.2.08",path)
-        if path=="src/apil_release.hpp":s=replace(s,"0.2.07","0.2.08",path)
+        if path=="src/apil_release.hpp":
+            s=replace(s,'apilVersion[]="0.2.07"','apilVersion[]="0.2.08"',path)
+            s=replace(s,'apilVersionWide[]=L"0.2.07"','apilVersionWide[]=L"0.2.08"',path)
+        else:
+            s=replace(s,"0.2.07","0.2.08",path)
         files[path]=s.encode()
     tmp=ARCHIVE.with_suffix(".optimized.tmp")
     with ZipFile(tmp,"w",compression=ZIP_DEFLATED,compresslevel=6) as out:
