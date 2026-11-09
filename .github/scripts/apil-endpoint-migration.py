@@ -256,7 +256,7 @@ entries.push_back(std::move(r));}std::sort(entries.begin(),entries.end()''')
       $('endpoint-feedback').dataset.pending='1';
   };
 '''
-    change("ui/route-editor.js","  const project=q=>",popup+"  const project=q=>")
+    change("ui/route-editor.js","const project=q=>",popup+"const project=q=>")
     change("ui/route-editor.js",'   drawWaitMarkers();',
            '   drawWaitMarkers();drawEndpoints();')
     change("ui/route-editor.js",
