@@ -257,10 +257,10 @@ entries.push_back(std::move(r));}std::sort(entries.begin(),entries.end()''')
   };
 '''
     change("ui/route-editor.js","const project=q=>",popup+"const project=q=>")
-    change("ui/route-editor.js",'   drawWaitMarkers();',
-           '   drawWaitMarkers();drawEndpoints();')
+    change("ui/route-editor.js",'drawWaitMarkers();',
+           'drawWaitMarkers();drawEndpoints();')
     change("ui/route-editor.js",
-           "   if(screen.length){ctx.fillStyle=state.routeColor;ctx.strokeStyle='#111';ctx.lineWidth=2;ctx.beginPath();ctx.arc(...screen[0],5,0,Math.PI*2);ctx.fill();}",
+           "if(screen.length){ctx.fillStyle=state.routeColor;ctx.strokeStyle='#111';ctx.lineWidth=2;ctx.beginPath();ctx.arc(...screen[0],5,0,Math.PI*2);ctx.fill();}",
            "   // Endpoints are clickable flag blips above the canvas.")
     markers=r'''
   function drawEndpoints(){
@@ -278,8 +278,8 @@ entries.push_back(std::move(r));}std::sort(entries.begin(),entries.end()''')
       });
   }
 '''
-    change("ui/route-editor.js","  document.addEventListener('keydown',event=>{",
-           markers+"  document.addEventListener('keydown',event=>{")
+    change("ui/route-editor.js","document.addEventListener('keydown',event=>{",
+           markers+"document.addEventListener('keydown',event=>{")
     change("ui/route-editor.js",
            "if(!waitPopup.hidden)waitPopup.hidden=true;",
            "if(!endpointPopup.hidden)endpointPopup.hidden=true;\n     else if(!waitPopup.hidden)waitPopup.hidden=true;")
@@ -287,7 +287,7 @@ entries.push_back(std::move(r));}std::sort(entries.begin(),entries.end()''')
            "popup.hidden=true;waitPopup.hidden=true;selectedWait=null;pendingFit=true;",
            "popup.hidden=true;waitPopup.hidden=true;endpointPopup.hidden=true;selectedWait=null;pendingFit=true;")
     change("ui/route-editor.js",
-           "   scheduleDock();renderSections();",
+           "scheduleDock();renderSections();",
            """   if($('endpoint-feedback').dataset.pending==='1'&&(state.message==='Настройки финиша сохранены.'||state.message.indexOf('Не удалось сохранить настройки финиша.')===0)){
       $('endpoint-feedback').textContent=state.message;$('endpoint-feedback').dataset.pending='0';
    }
