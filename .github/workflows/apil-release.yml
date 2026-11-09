@@ -5,7 +5,7 @@ on:
     branches: [main]
     paths:
       - source/APIL-source.zip
-      - .github/scripts/apil-seamless-loop.py
+      - .github/scripts/apil-seamless-loop-optim.py
       - source/archive.part-*.b64
       - .github/workflows/apil-release.yml
   workflow_dispatch:
@@ -39,7 +39,7 @@ jobs:
           fi
       - name: Apply APIL seamless lap update
         run: |
-          python3 .github/scripts/apil-seamless-loop.py
+          python3 .github/scripts/apil-seamless-loop-optim.py
       - name: Extract source ZIP safely
         run: |
           python3 - <<'PY'
