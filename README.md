@@ -1,4 +1,4 @@
-# apil 0.2.07
+# apil 0.2.08
 
 Автопилот для District на GTA V b2699.
 
