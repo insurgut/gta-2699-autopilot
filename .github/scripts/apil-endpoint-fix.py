@@ -49,7 +49,7 @@ def apply(files):
   endpointLayer.append(endpointButton);
 '''+s[j:]
     a="  function drawEndpoints(){"
-    b="  document.addEventListener('keydown',event=>{"
+    b="document.addEventListener('keydown',event=>{"
     if s.count(a)!=1 or s.count(b)!=1:raise RuntimeError("Missing drawEndpoints anchors")
     i=s.index(a);j=s.index(b,i)
     s=s[:i]+r'''  function drawEndpoints(){
