@@ -1,4 +1,0 @@
-User-provided models from lowpoly_vehicles(1).zip
-Source ZIP SHA256: 0b13ceda0804acb17d077b91823ede9bd503b2cb463659d13f0131d480450f92
-OBJ and MTL bytes are preserved. Monochrome shading is applied at runtime; own vehicle is light gray.
-Axes: X right, Y forward, Z up; meters.
