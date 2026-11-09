@@ -165,7 +165,7 @@ entries.push_back(std::move(r));}std::sort(entries.begin(),entries.end()''')
             }
             endpointRestartAt=0;++routeVisualRevision;message=L"Настройки финиша сохранены.";
         }else if(parts.size()==11&&parts[0]==L"waiting"){''')
-    change("src/apil_release.hpp",'"0.2.04"','"0.2.05"')
+    change("src/apil_release.hpp",'apilVersion[]="0.2.04";','apilVersion[]="0.2.05";')
     change("src/apil_release.hpp", 'L"0.2.04"', 'L"0.2.05"')
     app=Path("ui/app.js")
     code=app.read_text(encoding="utf-8-sig")
