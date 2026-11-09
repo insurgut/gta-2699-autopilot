@@ -1,0 +1,32 @@
+name: Inspect current route endpoint UI
+on:
+  push:
+    paths: ['.github/workflows/apil-debug.yml']
+    branches: [main]
+permissions: { contents: read }
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          python3 - <<'PY'
+          from zipfile import ZipFile
+          import re
+          z=ZipFile('source/APIL-source.zip')
+          print('ZIP VALID:',z.testzip(), 'files',len(z.namelist()))
+          for path in ('ui/index.html','ui/route-editor.js','ui/app.js','ui/css/district.css','ui/css/ets2la.css'):
+              lines=z.read(path).decode('utf-8-sig').splitlines()
+              print('BEGIN',path,'total lines',len(lines))
+              if path=='ui/route-editor.js':
+                  for i,l in enumerate(lines):
+                      if i<155 or 'Endpoint' in l or 'endpoint' in l or 'pointerdown' in l or 'pointerup' in l or 'drawWait' in l or 'document.addEventListener' in l:print(f'DEBUG:{path}:{i+1}: {l[:700]}')
+              elif path=='ui/app.js':
+                  for i,l in enumerate(lines):
+                      if 'getState' in l or 'RouteEditor' in l or 'function update' in l or 'state.path' in l or 'update(' in l or 'function refresh' in l:print(f'DEBUG:{path}:{i+1}: {l[:1000]}')
+              elif path.endswith('.css'):
+                  for i,l in enumerate(lines):
+                      if any(x in l for x in ('.map-stage','.wait-marker-layer','.mini-settings','.endpoint-','.wait-blip','.map-north','[hidden]','.map-stage>','canvas')):print(f'DEBUG:{path}:{i+1}: {l[:1200]}')
+              else:
+                  for i,l in enumerate(lines):print(f'DEBUG:{path}:{i+1}: {l[:1500]}')
+          PY
