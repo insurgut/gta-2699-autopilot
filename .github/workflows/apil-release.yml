@@ -5,7 +5,7 @@ on:
     branches: [main]
     paths:
       - source/APIL-source.zip
-      - .github/scripts/apil-endpoint-migration.py
+      - .github/scripts/apil-endpoint-fix.py
       - source/archive.part-*.b64
       - .github/workflows/apil-release.yml
   workflow_dispatch:
@@ -39,7 +39,7 @@ jobs:
           fi
       - name: Apply APIL endpoint settings migration
         run: |
-          python3 .github/scripts/apil-endpoint-migration.py
+          python3 .github/scripts/apil-endpoint-fix.py
       - name: Extract source ZIP safely
         run: |
           python3 - <<'PY'
