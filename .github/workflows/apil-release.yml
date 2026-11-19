@@ -7,6 +7,7 @@ on:
       - source/APIL-source.zip
       - .github/scripts/apil-seamless-loop-optim.py
       - .github/scripts/apil-connection-fix.py
+      - .github/scripts/apil-performance-fix.py
       - source/archive.part-*.b64
       - .github/workflows/apil-release.yml
   workflow_dispatch:
@@ -44,6 +45,9 @@ jobs:
       - name: Upgrade APIL connection and offline diagnostics to 0.2.09
         run: |
           python3 .github/scripts/apil-connection-fix.py
+      - name: Optimize APIL CPU scheduling and overlay to 0.2.10
+        run: |
+          python3 .github/scripts/apil-performance-fix.py
       - name: Extract source ZIP safely
         run: |
           python3 - <<'PY'
