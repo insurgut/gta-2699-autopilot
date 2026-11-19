@@ -107,7 +107,7 @@ s=once(s,
         reader=dataDir/L"runtime"/apilVersionWide/L"bin"/L"DistrictTelemetry.exe";
     auto args=new ReaderArgs{pid,window,reader};''',name)
 s=once(s,
-r'''        f<<"\nStatus: "<<utf8(message)<<"\nTelemetry: "<<utf8(std::wstring(sample.error,errorLength))<<"\n";r''',
+r'''        f<<"\nStatus: "<<utf8(message)<<"\nTelemetry: "<<utf8(std::wstring(sample.error,errorLength))<<"\n";''',
 r'''        f<<"\nStatus: "<<utf8(message)<<"\nTelemetry: "<<utf8(std::wstring(sample.error,errorLength))<<"\n";
         // Offline connection report: no telemetry or running game required.
         f<<"Connection connected="<<haveSample<<" connecting="<<connecting
@@ -143,10 +143,10 @@ r'''        f<<"\nStatus: "<<utf8(message)<<"\nTelemetry: "<<utf8(std::wstring(s
                 WinHandle ipc(OpenFileMappingW(FILE_MAP_READ,FALSE,ipcName(probePid).c_str()));
                 f<<"Telemetry IPC present="<<bool(ipc.h)<<"\n";
             }
-        }r''',name)
+        }''',name)
 s=once(s,
-r'''         <<"sampleAgeMs "<<(GetTickCount64()-sample.sampleBeat)<<" radarAgeMs "<<(GetTickCount64()-sample.radarBeat)<<" radarValid "<<sample.radarValid<<" complete "<<grid.complete<<"\n"r''',
-r'''         <<"sampleAgeMs "<<(sample.sampleBeat?GetTickCount64()-sample.sampleBeat:0)<<" radarAgeMs "<<(sample.radarBeat?GetTickCount64()-sample.radarBeat:0)<<" radarValid "<<sample.radarValid<<" complete "<<grid.complete<<"\n"r''',name)
+r'''         <<"sampleAgeMs "<<(GetTickCount64()-sample.sampleBeat)<<" radarAgeMs "<<(GetTickCount64()-sample.radarBeat)<<" radarValid "<<sample.radarValid<<" complete "<<grid.complete<<"\n"''',
+r'''         <<"sampleAgeMs "<<(sample.sampleBeat?GetTickCount64()-sample.sampleBeat:0)<<" radarAgeMs "<<(sample.radarBeat?GetTickCount64()-sample.radarBeat:0)<<" radarValid "<<sample.radarValid<<" complete "<<grid.complete<<"\n"''',name)
 files[name]=s.encode("utf-8")
 
 name="ui/app.js"
