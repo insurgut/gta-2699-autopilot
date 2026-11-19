@@ -78,7 +78,7 @@ s=change(s,
 '''if(!clipThreadRadius(p,q,{s.position.x,s.position.y,s.position.z,0},70,a,b))continue;line(''',
 '''if((p.x<s.position.x-71&&q.x<s.position.x-71)||(p.x>s.position.x+71&&q.x>s.position.x+71)||
                (p.y<s.position.y-71&&q.y<s.position.y-71)||(p.y>s.position.y+71&&q.y>s.position.y+71)||
-               !clipThreadRadius(p,q,{s.position.x,s.position.y,s.position.z,0},70,a,b))continue;line(''',path)
+               !clipThreadRadius(p,q,{s.position.x,s.position.y,s.position.z,0},70,a,b)){continue;}line(''',path)
 s=change(s,
 '''            if(!clipThreadRadius(originalA,originalB,{s.position.x,s.position.y,s.position.z,0},70,from,to)){threadArc+=length;continue;}''',
 '''            // Cheap AABB rejection before the expensive segment-circle clip.
