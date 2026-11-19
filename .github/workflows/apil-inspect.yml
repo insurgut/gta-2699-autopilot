@@ -1,0 +1,39 @@
+name: Inspect APIL connection paths
+on:
+  push:
+    paths: ['.github/workflows/apil-inspect.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Print connection and diagnostics implementation
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from zipfile import ZipFile
+          import re
+          with ZipFile('source/APIL-source.zip') as z:
+              files={name:z.read(name) for name in z.namelist() if name.startswith(('src/','ui/')) and name.endswith(('.cpp','.hpp','.h','.js','.html'))}
+          print('ARCHIVE FILES:',*[f'{k}: {len(v)} bytes' for k,v in files.items()],sep='\n')
+          checks=re.compile(r'diagnos|attach|detach|connect|disconnect|process|gameproc|openprocess|findwindow|profile|telemetry|bridge|radar|snapshot|game.?status|b2699',re.I)
+          for name,body in files.items():
+              if not any(k in name.lower() for k in ['controller','main','attach','diagnos','game','process','bridge','app.js','index.html','webview','telemetry','memory','runtime']):
+                  continue
+              lines=body.decode('utf-8-sig',errors='replace').splitlines()
+              matches=[i for i,l in enumerate(lines) if checks.search(l)]
+              if len(matches)>300: matches=matches[:300]
+              selected=set()
+              for i in matches:
+                  selected.update(range(max(0,i-2),min(len(lines),i+4)))
+              if not selected:continue
+              print(f'===FILE {name}: lines={len(lines)},matches={len(matches)}, shown={len(selected)}===')
+              last=-2
+              for i in sorted(selected):
+                  if i>last+1:print('...')
+                  print(f'{i+1:05}: {lines[i][:380]}')
+                  last=i
+          PY
