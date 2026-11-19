@@ -10,26 +10,19 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-      - name: Print exact source ranges
+      - name: Dry-run APIL connection migration
         shell: bash
         run: |
+          set -e
+          python3 .github/scripts/apil-seamless-loop-optim.py
+          python3 .github/scripts/apil-connection-fix.py
           python3 - <<'PY'
           from zipfile import ZipFile
+          from pathlib import Path
           with ZipFile('source/APIL-source.zip') as z:
-              for name,lo,hi in [
-                  ('src/attach.hpp',1,110),
-                  ('src/profile.hpp',1,110),
-                  ('src/apil_runtime.hpp',1,80),
-                  ('src/telemetry.hpp',1,90),
-                  ('src/external_reader.cpp',1,230),
-                  ('src/controller.cpp',215,240),
-                  ('src/controller.cpp',440,533),
-                  ('src/controller.cpp',1100,1197),
-                  ('src/controller.cpp',1380,1405),
-                  ('src/controller.cpp',1455,1477),
-                  ('ui/app.js',134,226)]:
-                  lines=z.read(name).decode('utf-8-sig',errors='replace').splitlines()
-                  print(f'===FILE {name}:{lo}-{hi}===')
-                  for i in range(lo-1,min(hi,len(lines))):
-                      print(f'{i+1:05}: {lines[i]}')
+              Path('/tmp/apil-app.js').write_bytes(z.read('ui/app.js'))
+              print('patched version:',z.read('src/apil_release.hpp').decode())
+              assert b"districtGameName" in z.read('src/attach.hpp')
+              assert b"Connection connected=" in z.read('src/controller.cpp')
           PY
+          node --check /tmp/apil-app.js
