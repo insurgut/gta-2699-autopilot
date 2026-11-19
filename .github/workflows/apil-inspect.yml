@@ -1,0 +1,33 @@
+name: Inspect APIL runtime performance
+on:
+  push:
+    paths: ['.github/workflows/apil-inspect.yml']
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Print performance hotspots
+        run: |
+          python3 - <<'PY'
+          from zipfile import ZipFile
+          with ZipFile('source/APIL-source.zip') as z:
+            ranges=[
+              ('src/controller.cpp',110,230),
+              ('src/controller.cpp',526,590),
+              ('src/controller.cpp',1400,1480),
+              ('src/external_reader.cpp',200,330),
+              ('src/overlay.hpp',1,260),
+              ('src/scene_view.hpp',1,130),
+              ('src/scene_panel.hpp',1,90),
+              ('src/web_ui.hpp',1,125),
+              ('ui/app.js',1,63),
+              ('ui/app.js',100,136)]
+            for name,start,end in ranges:
+              ls=z.read(name).decode('utf-8-sig',errors='replace').splitlines()
+              print(f'===FILE {name}:{start}-{end}===')
+              for i in range(start-1,min(end,len(ls))):
+                print(f'{i+1:05}: {ls[i][:450]}')
+          PY
