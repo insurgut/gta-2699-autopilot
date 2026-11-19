@@ -1,4 +1,4 @@
-name: Inspect APIL runtime performance
+name: Test APIL 0.2.10 performance changes
 on:
   push:
     paths: ['.github/workflows/apil-inspect.yml']
@@ -9,25 +9,18 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-      - name: Print performance hotspots
+      - name: Dry run performance migration
         run: |
+          set -euo pipefail
+          python3 .github/scripts/apil-performance-fix.py
           python3 - <<'PY'
           from zipfile import ZipFile
+          from pathlib import Path
           with ZipFile('source/APIL-source.zip') as z:
-            ranges=[
-              ('src/controller.cpp',110,230),
-              ('src/controller.cpp',526,590),
-              ('src/controller.cpp',1400,1480),
-              ('src/external_reader.cpp',200,330),
-              ('src/overlay.hpp',1,260),
-              ('src/scene_view.hpp',1,130),
-              ('src/scene_panel.hpp',1,90),
-              ('src/web_ui.hpp',1,125),
-              ('ui/app.js',1,63),
-              ('ui/app.js',100,136)]
-            for name,start,end in ranges:
-              ls=z.read(name).decode('utf-8-sig',errors='replace').splitlines()
-              print(f'===FILE {name}:{start}-{end}===')
-              for i in range(start-1,min(end,len(ls))):
-                print(f'{i+1:05}: {ls[i][:450]}')
+              assert b"Sleep(8)" in z.read("src/external_reader.cpp")
+              assert b"reportInterval" in z.read("src/controller.cpp")
+              assert b"Squared distance" in z.read("src/overlay.hpp")
+              assert b'0.2.10' in z.read('src/apil_release.hpp')
+              Path('/tmp/apil-app.js').write_bytes(z.read('ui/app.js'))
           PY
+          node --check /tmp/apil-app.js
