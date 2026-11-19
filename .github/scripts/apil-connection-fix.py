@@ -107,13 +107,13 @@ s=once(s,
         reader=dataDir/L"runtime"/apilVersionWide/L"bin"/L"DistrictTelemetry.exe";
     auto args=new ReaderArgs{pid,window,reader};''',name)
 s=once(s,
-'''        f<<"\nStatus: "<<utf8(message)<<"\nTelemetry: "<<utf8(std::wstring(sample.error,errorLength))<<"\n";''',
-'''        f<<"\nStatus: "<<utf8(message)<<"\nTelemetry: "<<utf8(std::wstring(sample.error,errorLength))<<"\n";
+r'''        f<<"\nStatus: "<<utf8(message)<<"\nTelemetry: "<<utf8(std::wstring(sample.error,errorLength))<<"\n";r''',
+r'''        f<<"\nStatus: "<<utf8(message)<<"\nTelemetry: "<<utf8(std::wstring(sample.error,errorLength))<<"\n";
         // Offline connection report: no telemetry or running game required.
         f<<"Connection connected="<<haveSample<<" connecting="<<connecting
-         <<" PID="<<pid<<" BattlEye="<<battleye()<<"\\n";
+         <<" PID="<<pid<<" BattlEye="<<battleye()<<"\n";
         const DWORD discoveredPid=gameProcess();
-        f<<"Discovered PID="<<discoveredPid<<" (zero = missing or ambiguous)\\n";
+        f<<"Discovered PID="<<discoveredPid<<" (zero = missing or ambiguous)\n";
         for(const auto&entry:processList()){
             std::wstring exe(entry.szExeFile);
             std::wstring low=exe;
@@ -121,32 +121,32 @@ s=once(s,
             if(districtGameName(entry.szExeFile)||low.find(L"district")!=std::wstring::npos||
                low.find(L"gta5")!=std::wstring::npos||low.find(L"fivem")!=std::wstring::npos)
                 f<<"Process candidate PID="<<entry.th32ProcessID<<" exe="<<utf8(exe)
-                 <<" eligible="<<districtGameName(entry.szExeFile)<<"\\n";
+                 <<" eligible="<<districtGameName(entry.szExeFile)<<"\n";
         }
         auto reportReader=appDir/L"DistrictTelemetry.exe";
         std::error_code readerError;
         if(!std::filesystem::is_regular_file(reportReader,readerError))
             reportReader=dataDir/L"runtime"/apilVersionWide/L"bin"/L"DistrictTelemetry.exe";
         f<<"Reader executable="<<utf8(reportReader.wstring())
-         <<" present="<<std::filesystem::is_regular_file(reportReader,readerError)<<"\\n";
+         <<" present="<<std::filesystem::is_regular_file(reportReader,readerError)<<"\n";
         const DWORD probePid=pid?pid:discoveredPid;
         if(probePid&&!battleye()){
             WinHandle probe(OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION|PROCESS_VM_READ,FALSE,probePid));
             const DWORD openError=probe.h?0:GetLastError();
-            f<<"OpenProcess success="<<bool(probe.h)<<" winError="<<openError<<"\\n";
+            f<<"OpenProcess success="<<bool(probe.h)<<" winError="<<openError<<"\n";
             if(probe.h){
                 uintptr_t base=moduleBase(probePid,nullptr);
                 std::wstring profileReason;
                 bool profileOK=profileMatches(probe,base,&profileReason);
                 f<<"Main module base=0x"<<std::hex<<base<<std::dec
-                 <<" b2699 profile="<<profileOK<<" reason="<<utf8(profileReason)<<"\\n";
+                 <<" b2699 profile="<<profileOK<<" reason="<<utf8(profileReason)<<"\n";
                 WinHandle ipc(OpenFileMappingW(FILE_MAP_READ,FALSE,ipcName(probePid).c_str()));
-                f<<"Telemetry IPC present="<<bool(ipc.h)<<"\\n";
+                f<<"Telemetry IPC present="<<bool(ipc.h)<<"\n";
             }
-        }''',name)
+        }r''',name)
 s=once(s,
-'''         <<"sampleAgeMs "<<(GetTickCount64()-sample.sampleBeat)<<" radarAgeMs "<<(GetTickCount64()-sample.radarBeat)<<" radarValid "<<sample.radarValid<<" complete "<<grid.complete<<"\n"''',
-'''         <<"sampleAgeMs "<<(sample.sampleBeat?GetTickCount64()-sample.sampleBeat:0)<<" radarAgeMs "<<(sample.radarBeat?GetTickCount64()-sample.radarBeat:0)<<" radarValid "<<sample.radarValid<<" complete "<<grid.complete<<"\n"''',name)
+r'''         <<"sampleAgeMs "<<(GetTickCount64()-sample.sampleBeat)<<" radarAgeMs "<<(GetTickCount64()-sample.radarBeat)<<" radarValid "<<sample.radarValid<<" complete "<<grid.complete<<"\n"r''',
+r'''         <<"sampleAgeMs "<<(sample.sampleBeat?GetTickCount64()-sample.sampleBeat:0)<<" radarAgeMs "<<(sample.radarBeat?GetTickCount64()-sample.radarBeat:0)<<" radarValid "<<sample.radarValid<<" complete "<<grid.complete<<"\n"r''',name)
 files[name]=s.encode("utf-8")
 
 name="ui/app.js"
