@@ -15,8 +15,8 @@ with ZipFile(ARCHIVE) as z:
     files={i.filename:z.read(i) for i in z.infolist() if not i.is_dir()}
 
 version=files["src/apil_release.hpp"].decode()
-if 'apilVersion[]="0.2.08"' in version:
-    print("APIL 0.2.08 already patched")
+if any('apilVersion[]="'+v+'"' in version for v in ('0.2.08','0.2.09','0.2.10')):
+    print("APIL seamless loop optimization already present")
 else:
     if 'apilVersion[]="0.2.07"' not in version:raise RuntimeError("Expected 0.2.07")
     path="src/seamless_loop.hpp"
