@@ -17,7 +17,7 @@ permissions:
 
 concurrency:
   group: apil-release-main
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   windows-release:
@@ -30,8 +30,8 @@ jobs:
           persist-credentials: true
       - name: Install MinGW-w64 toolchain
         run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends g++-mingw-w64-x86-64-posix binutils-mingw-w64-x86-64 python3
+          sudo apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20 update
+          sudo DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=2 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20 install -y --no-install-recommends g++-mingw-w64-x86-64-posix binutils-mingw-w64-x86-64 python3
       - name: Restore initial source ZIP (migration only)
         run: |
           set -euo pipefail
