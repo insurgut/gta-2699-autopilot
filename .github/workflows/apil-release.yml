@@ -8,6 +8,7 @@ on:
       - .github/scripts/apil-seamless-loop-optim.py
       - .github/scripts/apil-connection-fix.py
       - .github/scripts/apil-performance-fix.py
+      - .github/scripts/apil-section-no-braking.py
       - source/archive.part-*.b64
       - .github/workflows/apil-release.yml
   workflow_dispatch:
@@ -39,15 +40,9 @@ jobs:
             cat source/archive.part-*.b64 | base64 --decode > source/APIL-source.zip
             echo '4b5cbd5de1dff925a94c42f37c35e853811f56b7ea5c23401de192473fcd7f21  source/APIL-source.zip' | sha256sum --check
           fi
-      - name: Apply APIL seamless lap update
+      - name: Add per-section no-recorded-braking mode, APIL 0.2.11
         run: |
-          python3 .github/scripts/apil-seamless-loop-optim.py
-      - name: Upgrade APIL connection and offline diagnostics to 0.2.09
-        run: |
-          python3 .github/scripts/apil-connection-fix.py
-      - name: Optimize APIL CPU scheduling and overlay to 0.2.10
-        run: |
-          python3 .github/scripts/apil-performance-fix.py
+          python3 .github/scripts/apil-section-no-braking.py
       - name: Extract source ZIP safely
         run: |
           python3 - <<'PY'
@@ -80,6 +75,11 @@ jobs:
         run: |
           g++ -std=c++17 -O2 -Wall -Wextra -I src src/seamless_loop_tests.cpp -o /tmp/apil-loop-tests
           /tmp/apil-loop-tests
+      - name: Test section no-recorded-braking and persisted route settings
+        working-directory: apil-build
+        run: |
+          g++ -std=c++17 -O2 -Wall -Wextra -I src src/no_recorded_braking_tests.cpp -o /tmp/apil-braking-tests
+          /tmp/apil-braking-tests
       - name: Build Windows x64 application
         working-directory: apil-build
         run: |
