@@ -122,3 +122,5 @@ jobs:
           PY
           g++ -std=c++17 -O2 -Wall -Wextra -I /tmp/apil-test/src /tmp/apil-test/src/no_recorded_braking_tests.cpp -o /tmp/test-apil-braking
           /tmp/test-apil-braking
+
+# Revalidate after catalog anchor fix
