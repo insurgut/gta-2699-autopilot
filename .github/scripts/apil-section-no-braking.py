@@ -41,7 +41,7 @@ change('src/stops.hpp','if(r[i].waitMs>=500||(i+1<r.size()&&r[i+1].direction!=r[
        'if((r[i].waitMs>=500&&!r[i].noRecordedBraking)||(i+1<r.size()&&r[i+1].direction!=r[i].direction))return i;')
 change('src/stops.hpp','out[i].ignoreObstacles=r[r.size()-i].ignoreObstacles;',
        'out[i].ignoreObstacles=r[r.size()-i].ignoreObstacles;out[i].noRecordedBraking=r[r.size()-i].noRecordedBraking;')
-change('src/route_catalog.hpp','  bool setRecordedPace(size_t index,bool enabled){',
+change('src/route_catalog.hpp','bool setRecordedPace(size_t index,bool enabled){',
 '''  // This setter retains the existing route-wide recorded-pace setting.
   bool setNoRecordedBraking(size_t index,size_t from,size_t to,bool enabled){
     if(index>=entries.size()||from>to||to+1>=entries[index].points.size())return false;
