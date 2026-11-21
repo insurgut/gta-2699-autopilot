@@ -102,3 +102,23 @@ jobs:
                       print(f'{i+1:4}: {t[i][:1200]}')
                       last=i
           PY
+
+      - name: Test APIL 0.2.11 section no-braking migration
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 .github/scripts/apil-section-no-braking.py
+          python3 - <<'PY'
+          from zipfile import ZipFile
+          from pathlib import Path
+          root=Path('/tmp/apil-test')
+          root.mkdir(exist_ok=True)
+          with ZipFile('source/APIL-source.zip') as z:
+              for name in ('src/no_recorded_braking_tests.cpp','src/route.hpp','src/route_sections.hpp','src/stops.hpp','src/input_keys.hpp','src/speed_profile.hpp'):
+                  target=root/name
+                  target.parent.mkdir(parents=True,exist_ok=True)
+                  target.write_bytes(z.read(name))
+              assert b'0.2.11' in z.read('src/apil_release.hpp')
+          PY
+          g++ -std=c++17 -O2 -Wall -Wextra -I /tmp/apil-test/src /tmp/apil-test/src/no_recorded_braking_tests.cpp -o /tmp/test-apil-braking
+          /tmp/test-apil-braking
