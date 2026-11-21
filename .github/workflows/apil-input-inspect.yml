@@ -1,0 +1,45 @@
+name: Inspect APIL keyboard output and braking policy
+on:
+  push:
+    paths: ['.github/workflows/apil-input-inspect.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect code snippets
+        run: |
+          python3 - <<'PY'
+          import zipfile,re
+          with zipfile.ZipFile('source/APIL-source.zip') as z:
+            for name in ['src/controller.cpp','src/input.hpp','src/route_sections.hpp','src/driving.hpp','src/stops.hpp','src/route_selection.hpp','src/route.hpp']:
+              if name not in z.namelist():continue
+              s=z.read(name).decode('utf-8-sig').splitlines()
+              print('\n## FILE',name,len(s))
+              groups=[]
+              if name=='src/controller.cpp':
+                pat=r'outputKey\(|holdHandbrake\(|release\(|keyState\[|mode==Mode::Drive|noRecordedBraking|gearDriveOutput|void hold|bool outputKey|bool ignoringRouteObstacles|activeRoute=|playbackRoute=|prepareLap'
+                ids=[i for i,x in enumerate(s) if re.search(pat,x)]
+                for i in ids:
+                  if i < 300 or i > 690 and i < 1100:
+                    groups.append((max(0,i-2),min(len(s),i+4)))
+              elif name=='src/driving.hpp':
+                groups=[(0,len(s))]
+              elif name=='src/stops.hpp' or name=='src/route_selection.hpp':
+                groups=[(0,min(len(s),40))]
+              else:groups=[(0,min(len(s),70))]
+              keep=set()
+              for a,b in groups:keep.update(range(a,b))
+              for i in sorted(keep): print(f'{i+1:04}: {s[i][:1100]}')
+            print('\n## Input related files')
+            for name in z.namelist():
+              if name.startswith('src/') and name.endswith(('.hpp','.cpp')) and 'test' not in name:
+                s=z.read(name).decode('utf-8-sig')
+                if re.search(r'outputKey\(|keyState\[4\]|VK_SPACE|holdHandbrake',s) and name!='src/controller.cpp':
+                  print(name)
+                  for i,x in enumerate(s.splitlines()):
+                    if re.search(r'outputKey\(|keyState\[4\]|VK_SPACE|holdHandbrake',x):print(f'{i+1:04}: {x[:1100]}')
+          PY
