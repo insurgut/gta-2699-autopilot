@@ -1,0 +1,54 @@
+name: Inspect APIL section UI and braking
+on:
+  push:
+    paths:
+      - .github/workflows/apil-section-inspect.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect updated application sources
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 .github/scripts/apil-seamless-loop-optim.py
+          python3 .github/scripts/apil-connection-fix.py
+          python3 .github/scripts/apil-performance-fix.py
+          python3 - <<'PY'
+          import re
+          from zipfile import ZipFile
+          with ZipFile('source/APIL-source.zip') as z:
+              names=z.namelist()
+              print('=== ALL SOURCE FILES ===',flush=True)
+              print('\n'.join(names),flush=True)
+              print('=== RELEVANT UI AND ROUTE SOURCE ===',flush=True)
+              patterns = re.compile(r'brak|торм|section|segment|zone|custom|switch|popup|modal|settings',re.I)
+              for name in names:
+                  if not name.endswith(('.js','.css','.hpp','.cpp','.html')): continue
+                  if not (name.startswith('ui/') or name in ['src/controller.cpp','src/route.hpp','src/driving.hpp','src/route_actions.hpp','src/custom_sections.hpp']): continue
+                  if not (name.startswith('ui/') or 'route' in name): continue
+                  try: source=z.read(name).decode('utf-8-sig').splitlines()
+                  except UnicodeError: continue
+                  matched=[i for i,l in enumerate(source) if patterns.search(l)]
+                  if not matched: continue
+                  print(f'\n### FILE {name}: {len(source)} lines, {len(matched)} matches',flush=True)
+                  if name in ('ui/route-editor.js','ui/app.js','ui/index.html','ui/css/district.css'):
+                      select=set()
+                      for i in matched[:135]:
+                          select.update(range(max(0,i-5),min(len(source),i+6)))
+                      select=sorted(select)[:650]
+                  else:
+                      select=set()
+                      for i in matched[:75]:
+                          select.update(range(max(0,i-4),min(len(source),i+5)))
+                      select=sorted(select)[:330]
+                  last=-2
+                  for i in select:
+                      if i!=last+1:print('   ...')
+                      print(f'{i+1:5}: {source[i][:650]}')
+                      last=i
+          PY
