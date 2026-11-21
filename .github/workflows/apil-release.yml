@@ -54,9 +54,8 @@ jobs:
               with ZipFile('source/APIL-source.zip') as z:
                   source=z.read('src/apil_release.hpp').decode()
               import re
-              match=re.search(r'apilVersion\\[\\]\\s*=\\s*"([0-9]+)\\.([0-9]+)\\.([0-9]+)"',source)
-              assert match, 'Missing version in archive'
-              current=tuple(map(int,match.groups()))
+              version=source.split('apilVersion[]="',1)[1].split('"',1)[0]
+              current=tuple(map(int,version.split('.')))
               if current>=target:print('Already at',current,'skipping',script)
               else:run(['python3',script],check=True)
           PY
