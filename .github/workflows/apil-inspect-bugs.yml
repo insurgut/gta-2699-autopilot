@@ -41,3 +41,25 @@ jobs:
                 print('\nFILE',name,'len',len(s),'matches',len(matches))
                 for i,line in matches[:28]:print(f'{i+1:04}: {line[:400]}')
           PY
+
+      - name: Focused exact code excerpts
+        run: |
+          python3 - <<'PY'
+          from zipfile import ZipFile
+          groups={
+           'src/controller.cpp':[(1283,1320),(925,945)],
+           'ui/route-editor.js':[(338,371),(416,420)],
+           'src/driving.hpp':[(1,65)],
+           'src/route_selection.hpp':[(1,55)],
+           'src/input_enter_markers.hpp':[(1,30)],
+           'src/route_catalog.hpp':[(65,92)],
+           'src/route_sections.hpp':[(11,51)],
+          }
+          with ZipFile('source/APIL-source.zip') as z:
+           for name,ranges in groups.items():
+            s=z.read(name).decode('utf-8-sig').splitlines()
+            print('## BEGIN',name)
+            for a,b in ranges:
+             for i in range(a,min(b,len(s))+1):print(f'{i:04}: {s[i-1]}')
+            print('## END',name)
+          PY
