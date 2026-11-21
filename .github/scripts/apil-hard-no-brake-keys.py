@@ -56,7 +56,7 @@ replace('ui/index.html','<span data-text="version">0.2.12</span>','<span data-te
 files['src/no_braking_key_policy_tests.cpp']=r'''#include "no_braking_key_policy.hpp"
 #include <cassert>
 int main(){
-  for(int direction:{-1,1}){
+  for(int direction=-1;direction<=1;direction+=2){
     for(std::size_t key=0;key<5;++key){
       assert(!blockAutopilotBrakingKey(false,direction,key,true));
       assert(!blockAutopilotBrakingKey(true,direction,key,false));
