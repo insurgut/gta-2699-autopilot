@@ -49,3 +49,30 @@ jobs:
                       print(f'{i+1:5}: {source[i][:650]}')
                       last=i
           PY
+
+          python3 - <<'PY'
+          import re
+          from zipfile import ZipFile
+          with ZipFile('source/APIL-source.zip') as z:
+              for name in ['src/route.hpp','src/driving.hpp','src/controller.cpp','src/custom_sections.hpp','src/route_storage.hpp','ui/route-editor.js','ui/app.js','ui/components.js','ui/index.html']:
+                  if name not in z.namelist():continue
+                  lines=z.read(name).decode('utf-8-sig').splitlines()
+                  print(f'### DETAIL {name} ({len(lines)} lines) ###',flush=True)
+                  if name in ['src/route.hpp','src/driving.hpp','ui/components.js','ui/index.html']:
+                      indexes=range(min(240,len(lines)))
+                  elif name=='src/controller.cpp':
+                      pat=re.compile(r'brak|торм|section|route\||targetSpeed|recorded|driveOutput|accel|input|speed|saveRoute|loadRoute|custom',re.I)
+                      hits=[i for i,line in enumerate(lines) if pat.search(line)]
+                      subset=set()
+                      for i in hits[:175]:subset.update(range(max(0,i-3),min(len(lines),i+5)))
+                      indexes=sorted(subset)[:850]
+                  elif name=='ui/route-editor.js':
+                      indexes=sorted(set(range(0,53))|set(range(373,min(len(lines),383))))
+                  else:
+                      indexes=range(0,min(65,len(lines)))
+                  last=-2
+                  for i in indexes:
+                      if i!=last+1: print('   ....')
+                      print(f'{i+1:4}: {lines[i][:1100]}')
+                      last=i
+          PY
