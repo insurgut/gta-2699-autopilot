@@ -10,6 +10,7 @@ on:
       - .github/scripts/apil-performance-fix.py
       - .github/scripts/apil-section-no-braking.py
       - .github/scripts/apil-section-regressions-fix.py
+      - .github/scripts/apil-hard-no-brake-keys.py
       - source/archive.part-*.b64
       - .github/workflows/apil-release.yml
   workflow_dispatch:
@@ -47,6 +48,9 @@ jobs:
       - name: Fix section deletion and braking lookahead, APIL 0.2.12
         run: |
           python3 .github/scripts/apil-section-regressions-fix.py
+      - name: Block APIL brake inputs for marked sections, APIL 0.2.13
+        run: |
+          python3 .github/scripts/apil-hard-no-brake-keys.py
       - name: Extract source ZIP safely
         run: |
           python3 - <<'PY'
@@ -89,6 +93,11 @@ jobs:
         run: |
           g++ -std=c++17 -O2 -Wall -Wextra -I src src/section_regressions_tests.cpp -o /tmp/apil-section-regressions
           /tmp/apil-section-regressions
+      - name: Test APIL no-braking keyboard policy
+        working-directory: apil-build
+        run: |
+          g++ -std=c++17 -O2 -Wall -Wextra -I src src/no_braking_key_policy_tests.cpp -o /tmp/apil-no-brake-key-tests
+          /tmp/apil-no-brake-key-tests
       - name: Build Windows x64 application
         working-directory: apil-build
         run: |
