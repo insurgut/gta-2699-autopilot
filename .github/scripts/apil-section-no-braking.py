@@ -136,8 +136,8 @@ change('ui/route-editor.js','Boolean(p[j+1][3])===Boolean(p[i][3]))++j;',
        'Boolean(p[j+1][3])===Boolean(p[i][3])&&Boolean(p[j+1][4])===Boolean(p[i][4]))++j;')
 anchor=" · игнорировать препятствия':''}"
 change('ui/route-editor.js',anchor,anchor+D+"p[i][4]?' · без торможения':''}")
-change('ui/route-editor.js',"if(event.key!=='Escape')return;\n     if(!endpointPopup.hidden)",
-       "if(event.key!=='Escape')return;\n     if(!brakingConfirm.hidden){dismissBraking();return;}\n     if(!endpointPopup.hidden)")
+change('ui/route-editor.js',"if(event.key!=='Escape')return;",
+       "if(event.key!=='Escape')return; if(!brakingConfirm.hidden){dismissBraking();return;}")
 f['ui/css/district.css']+=r'''
 /* APIL 0.2.11: circular reveal inside the current section settings window. */
 #section-popup{isolation:isolate;overflow-x:hidden}
