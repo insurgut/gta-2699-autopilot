@@ -15,9 +15,6 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python3 .github/scripts/apil-seamless-loop-optim.py
-          python3 .github/scripts/apil-connection-fix.py
-          python3 .github/scripts/apil-performance-fix.py
           python3 - <<'PY'
           import re
           from zipfile import ZipFile
