@@ -76,3 +76,29 @@ jobs:
                       print(f'{i+1:4}: {lines[i][:1100]}')
                       last=i
           PY
+
+          python3 - <<'PY'
+          import re
+          from zipfile import ZipFile
+          with ZipFile('source/APIL-source.zip') as z:
+              for name in ['src/route_sections.hpp','src/speed_profile.hpp','src/stops.hpp','src/route_catalog.hpp','src/input_pose.hpp','src/web_ui.hpp','src/controller.cpp','ui/app.js']:
+                  t=z.read(name).decode('utf-8-sig').splitlines()
+                  print(f'### TARGET {name} ({len(t)} lines) ###')
+                  if name=='src/controller.cpp':
+                      ids=list(range(1150,min(1530,len(t))))
+                  elif name=='ui/app.js':
+                      ids=list(range(150,min(225,len(t))))
+                  elif name=='src/web_ui.hpp':
+                      pat=re.compile('path|route|section|speedLimit|ignoreObstacles')
+                      hits=[i for i,v in enumerate(t) if pat.search(v)]
+                      sel=set()
+                      for i in hits[:85]:sel.update(range(max(0,i-2),min(len(t),i+4)))
+                      ids=sorted(sel)[:240]
+                  else:
+                      ids=list(range(min(250,len(t))))
+                  last=-2
+                  for i in ids:
+                      if i!=last+1:print(' ....')
+                      print(f'{i+1:4}: {t[i][:1200]}')
+                      last=i
+          PY
